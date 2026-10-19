@@ -66,10 +66,6 @@ Core model construction currently uses:
 
 The optional final MAE plotting path attempts `swtest` when available and otherwise falls back to MATLAB's paired `ttest` logic.
 
-## Intentionally excluded
-
-The upstream raw-data preprocessing, joint-work analysis, leave-slope experiments, paper-specific impedance derivation, and older test scripts are not required by these two final runners and are therefore not included in this backend-only package.
-
 ## Local-fit runner configuration
 
 `run_local_fits_plot.m` keeps the analysis target at the top of the script:
@@ -86,38 +82,6 @@ visualize        = true;
 Plot defaults are centralized in `src/local/build_local_plot_options.m`.
 `plot_overrides` in the runner can replace only selected display settings
 without redefining the complete plotting structure.
-
-## Step 3 modularization
-
-The local-fit pipeline now separates three data-preparation responsibilities:
-
-- `get_terrain_slope_sets.m` defines the discrete terrain subsets in one place.
-- `select_biomechanics_surface.m` selects one joint/state/quantity and returns the standard `phase x slope` matrix.
-- `prepare_local_fit_data.m` constructs the full/ascent/descent/ramp/stair subsets used by local fitting.
-
-`local_polyfit_comparison.m` therefore begins directly from an already-selected, consistently oriented biomechanics surface before entering the polynomial-fitting stage. The global RBF path still retains its legacy internal slope definitions for now and can be migrated to the shared terrain helper in a later step.
-
-
-## Step 4 modularization
-
-The repeated local polynomial-fitting calls are now isolated in
-`src/local/fit_local_biomechanics_models.m`.
-
-Each prepared terrain subset already carries its own discrete
-`slopePoints`, so the fitting helper no longer needs hard-coded terrain
-values. It fits each requested subset using those points and evaluates all
-local models over `data.full.sortedSlope`, preserving the original
-full-domain comparison behavior.
-
-`local_polyfit_comparison.m` now delegates the entire fitting stage with:
-
-```matlab
-fit = fit_local_biomechanics_models( ...
-    data, targetDirection, fitType);
-```
-
-The model evaluation, similarity summaries, and plotting logic remain in
-`local_polyfit_comparison.m` and are unchanged in this step.
 
 ## Surface-plot annotations
 
