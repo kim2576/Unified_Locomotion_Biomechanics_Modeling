@@ -57,12 +57,6 @@ src/local       Local polynomial-fit comparison
 src/evaluation  Current downstream MAE manuscript evaluation
 ```
 
-## Sanity-check result: Molinaro slope order
-
-The supplied Molinaro file has a legacy ordering inconsistency: its trajectory matrices were saved in reverse terrain-slope row order, while `slope_info` was saved in ascending order. The old global runner compensated with `end:-1:1`, but the local path did not.
-
-`load_preprocessed_biomechanics.m` now centralizes this correction. The stored `.mat` file is not modified.
-
 ## Required MATLAB toolboxes
 
 Core model construction currently uses:
