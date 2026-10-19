@@ -4,7 +4,8 @@ This package starts **after preprocessing**. The two required inputs are already
 
 - `data/AB_avgDat_Camargo.mat`
 - `data/AB_avgDat_Molinaro.mat`
-- References:
+  
+## References:
 - Camargo, Jonathan, et al. "A comprehensive, open-source dataset of lower limb biomechanics in multiple conditions of stairs, ramps, and level-ground ambulation and transitions." Journal of biomechanics 119 (2021): 110320.
 - Molinaro, Dean D., Inseung Kang, and Aaron J. Young. "Estimating human joint moments unifies exoskeleton control, reducing user effort." Science robotics 9.88 (2024): eadi8852.
 - Buhmann, Martin Dietrich. "Radial basis functions." Acta numerica 9 (2000): 1-38.
