@@ -21,7 +21,7 @@ visualize_rbf = true;
 run_final_evaluation = true;
 moment_positive_zero = false;
 save_rbf_model = false;
-save_rbf_model = true;
+% save_rbf_model = true;
 
 %% Project paths
 project_root = fileparts(mfilename('fullpath'));
