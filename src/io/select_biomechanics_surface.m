@@ -33,7 +33,11 @@ The supplied local-fit workflow supports hip, knee, and ankle data.
             error('targetJoint must be "hip", "knee", or "ankle".');
     end
 
-    fieldName = char(targetJoint + "_" + targetBiomech + "_" + targetState);
+    if targetBiomech == "angle_dot_norm"
+        fieldName = char(targetJoint + "_angle_dot_" + targetState + "_norm");
+    else
+        fieldName = char(targetJoint + "_" + targetBiomech + "_" + targetState);
+    end
 
     if ~isfield(dataStruct, fieldName)
         error('Field not found in preprocessed data: %s', fieldName);
@@ -53,6 +57,8 @@ The supplied local-fit workflow supports hip, knee, and ankle data.
             fieldName, nSlopes, size(rawData, 1), size(rawData, 2));
     end
 
-    %% Standard modeling orientation: phase x slope.
-    surface = rawData';
+    %% Standard modeling orientation: phase x slope (101 samples).
+    % angle_dot_norm arrives as 100 interval-based values and is aligned
+    % to the model grid at 0..100% before polynomial/RBF fitting.
+    surface = align_biomechanics_phase_grid(rawData, fieldName);
 end

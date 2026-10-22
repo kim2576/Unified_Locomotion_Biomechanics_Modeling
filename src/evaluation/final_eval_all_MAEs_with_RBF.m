@@ -1,13 +1,17 @@
 function stat_results_total = final_eval_all_MAEs_with_RBF( ...
     target_biomechanics_total, ...
     moment_positive_zero, ...
-    savedir ...
+    savedir, cached_evaluation_results ...
     )
 
 %{
 Use results from evaluate_selected_biomechanics.
 
 %}
+
+if nargin < 4 || isempty(cached_evaluation_results)
+    cached_evaluation_results = struct();
+end
 
 biomechanics_list = fields(target_biomechanics_total);
 
@@ -27,6 +31,6 @@ plot_options.avg_hip_angle_swing_total = plot_option_kinematics;
 stat_results_total = final_eval_combined_MAEs_with_RBF( ...
     target_biomechanics_total, ...
     moment_positive_zero, ...
-    savedir);
+    savedir, cached_evaluation_results);
 
 end

@@ -21,6 +21,7 @@ visualize_rbf = true;
 run_final_evaluation = true;
 moment_positive_zero = false;
 save_rbf_model = false;
+save_rbf_model = true;
 
 %% Project paths
 project_root = fileparts(mfilename('fullpath'));
@@ -60,5 +61,6 @@ if run_final_evaluation
     stat_results_total = final_eval_all_MAEs_with_RBF( ...
         target_biomechanics_total, ...
         moment_positive_zero, ...
-        output_dir);
+        output_dir, ...
+        evaluation_result_total);
 end

@@ -77,7 +77,22 @@ for i = 1:length(biomechanics_list)
     end
 
     target_biomechanics = target_biomechanics_total.(target_biomechanics_name);
-    plot_option_full = plot_options.(target_biomechanics_name);
+    % Existing angle/moment display settings remain unchanged. Angular
+    % velocities use data-dependent symmetric limits for readability.
+    if isfield(plot_options, target_biomechanics_name)
+        plot_option_full = plot_options.(target_biomechanics_name);
+    else
+        values = target_biomechanics(isfinite(target_biomechanics));
+        if isempty(values)
+            zBound = 1;
+        else
+            zBound = max(1, 1.1 * prctile(abs(values(:)), 99));
+        end
+        plot_option_full = struct('visualize', visualize_option, ...
+            'xlim', [-40 40], 'ylim', [0 100], ...
+            'zlim', [-zBound zBound], 'view', [20 30], ...
+            'clim', [-zBound zBound]);
+    end
 
     [target_joint, target_state, target_biomech] = ...
         local_parse_biomechanics_name(target_biomechanics_name);
@@ -118,6 +133,13 @@ function [targetJoint, targetState, targetBiomech] = ...
     end
 
     targetJoint = tokens(2);
-    targetBiomech = tokens(3);
-    targetState = tokens(4);
+    % Norm velocity fields are stored as avg_JOINT_angle_dot_STATE_norm_total.
+    % The other biomechanics remain avg_JOINT_BIOMECH_STATE_total.
+    if tokens(end-1) == "norm"
+        targetState = tokens(end-2);
+        targetBiomech = strjoin(tokens(3:end-3), '_') + "_norm";
+    else
+        targetBiomech = strjoin(tokens(3:end-2), '_');
+        targetState = tokens(end-1);
+    end
 end

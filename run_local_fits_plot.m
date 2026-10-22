@@ -10,9 +10,9 @@ close all;
 clc;
 
 %% Analysis settings
-target_joint     = "hip";       % "hip", "knee", or "ankle"
+target_joint     = "knee";       % "hip", "knee", or "ankle"
 target_state     = "stance";     % "stance" or "swing"
-target_biomech   = "moment";      % "angle" or "moment"
+target_biomech   = "angle_dot";      % "angle", "moment", "angle_dot", "angle_dot_norm"
 target_direction = "both";       % "ascending", "descending", or "both"
 fit_type         = "poly44";
 visualize        = true;

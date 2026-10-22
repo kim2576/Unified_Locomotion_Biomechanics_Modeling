@@ -1,7 +1,14 @@
 function results_all = final_eval_combined_MAEs_with_RBF( ...
     target_biomechanics_total, ...
     moment_positive_zero, ...
-    savedir)
+    savedir, cached_evaluation_results)
+
+%% Reuse evaluated RBF results from the global runner when available.
+% This avoids rerunning the expensive 7272x7272 Gaussian RBF kernel solve
+% for each of the angle/moment/velocity MAE figures.
+if nargin < 4 || isempty(cached_evaluation_results)
+    cached_evaluation_results = struct();
+end
 
 %% Plot options for RBF evaluation
 plot_option_full = struct('visualize', false, ...
@@ -24,6 +31,19 @@ varList = {
     'avg_ankle_angle_swing_total'
     'avg_knee_moment_stance_total'
     'avg_ankle_moment_stance_total'
+    % Measured angular velocities and derivatives of averaged angles:
+    'avg_knee_angle_dot_stance_total'
+    'avg_knee_angle_dot_swing_total'
+    'avg_hip_angle_dot_stance_total'
+    'avg_hip_angle_dot_swing_total'
+    'avg_ankle_angle_dot_stance_total'
+    'avg_ankle_angle_dot_swing_total'
+    'avg_knee_angle_dot_stance_norm_total'
+    'avg_knee_angle_dot_swing_norm_total'
+    'avg_hip_angle_dot_stance_norm_total'
+    'avg_hip_angle_dot_swing_norm_total'
+    'avg_ankle_angle_dot_stance_norm_total'
+    'avg_ankle_angle_dot_swing_norm_total'
 };
 
 results_all = struct;
@@ -36,12 +56,16 @@ for i = 1:numel(varList)
         continue
     end
 
-    results_all.(name) = evaluate_selected_biomechanics_with_RBF( ...
-        target_biomechanics_total.(name), 10e-8, ...
-        plot_option_full, ...
-        plot_option_ascent, ...
-        plot_option_descent, ...
-        moment_positive_zero);
+    if isfield(cached_evaluation_results, name)
+        results_all.(name) = cached_evaluation_results.(name);
+    else
+        results_all.(name) = evaluate_selected_biomechanics_with_RBF( ...
+            target_biomechanics_total.(name), 1e-8, ...
+            plot_option_full, ...
+            plot_option_ascent, ...
+            plot_option_descent, ...
+            moment_positive_zero);
+    end
 end
 
 %% Kinematics
@@ -93,6 +117,70 @@ set(gcf, 'OuterPosition', [0 0 1 1]);   % Full screen
 drawnow;
 exportgraphics(gcf, fullfile(savedir, 'combined_global_kinetics.png'), ...
     'Resolution', 300);
+
+
+%% Angular velocity: preserve separate original and _norm comparisons.
+% Each figure includes hip, knee and ankle for stance and swing; the
+% ascending/descending tests are inherited from the original MAE logic.
+for velocityType = ["angle_dot", "angle_dot_norm"]
+    velocityNames = cell(0, 2);
+    for joint = ["knee", "ankle", "hip"]
+        for gaitState = ["stance", "swing"]
+            if velocityType == "angle_dot_norm"
+                fieldName = char("avg_" + joint + "_angle_dot_" + gaitState + "_norm_total");
+            else
+                fieldName = char("avg_" + joint + "_" + velocityType + "_" + gaitState + "_total");
+            end
+            jointLabel = char(joint);
+            jointLabel(1) = upper(jointLabel(1));
+            displayName = [jointLabel ' ' char(gaitState)];
+            velocityNames(end+1, :) = {fieldName, displayName}; %#ok<AGROW>
+        end
+    end
+
+    for comparisonType = ["local", "global"]
+        % Allow larger angular-velocity errors without clipping them at
+        % the angle / moment MAE scales. Scale is derived from the
+        % corresponding models for the chosen velocity representation.
+        maxObservedMAE = 0;
+        for ni = 1:size(velocityNames, 1)
+            targetName = velocityNames{ni, 1};
+            if ~isfield(results_all, targetName)
+                continue
+            end
+            metric = results_all.(targetName);
+            for ds = {metric.similarities_ascent, metric.similarities_descent}
+                subset = ds{1};
+                subset(3) = [];
+                if comparisonType == "local"
+                    indices = [3 4 5];
+                else
+                    indices = [1 2 3];
+                end
+                for idx = indices
+                    values = subset{idx};
+                    finiteValues = values(isfinite(values));
+                    if ~isempty(finiteValues)
+                        maxObservedMAE = max(maxObservedMAE, max(finiteValues(:)));
+                    end
+                end
+            end
+        end
+        yTop = max(1, 1.35 * maxObservedMAE);
+        displayVariant = strrep(char(velocityType), '_', ' ');
+        plot_combined_MAE_comparison(results_all, velocityNames, ...
+            char(comparisonType), ...
+            sprintf('Angular velocity (%s) %s model comparison', ...
+                displayVariant, char(comparisonType)), ...
+            'MAE angular velocity (deg/s)', [0 yTop]);
+        set(gcf, 'Units', 'normalized');
+        set(gcf, 'OuterPosition', [0 0 1 1]);
+        drawnow;
+        exportgraphics(gcf, fullfile(savedir, ...
+            sprintf('combined_%s_%s.png', char(comparisonType), char(velocityType))), ...
+            'Resolution', 300);
+    end
+end
 
 end
 

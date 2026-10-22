@@ -37,6 +37,12 @@ Output fields added to plotOption:
         case "moment"
             biomechLabel = "Moment";
             unitLabel = "Nm/kg";
+        case "angle_dot"
+            biomechLabel = "Angular Velocity (original)";
+            unitLabel = "deg/s";
+        case "angle_dot_norm"
+            biomechLabel = "Angular Velocity (normalized)";
+            unitLabel = "deg/s";
         otherwise
             error('Unsupported targetBiomech: %s', targetBiomech);
     end

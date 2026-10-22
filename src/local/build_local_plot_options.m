@@ -53,6 +53,13 @@ are retained.
         'view', [40 30], ...
         'clim', [0 2]);
 
+    %% Velocity surfaces include signed data, so use a symmetric color axis.
+    if targetBiomech == "angle_dot" || targetBiomech == "angle_dot_norm"
+        plotOptions.global.clim = zlim_use;
+        plotOptions.ascent.clim = zlim_use;
+        plotOptions.descent.clim = zlim_use;
+    end
+
     %% Preserve the presentation used by the original final local runner for its default knee-angle example.
     if targetJoint == "knee" && targetBiomech == "angle"
         plotOptions.global.xlim = [-40 40];
@@ -101,6 +108,15 @@ function zlim_use = local_get_zlim(targetJoint, targetBiomech)
             zlim_use = [-40 40];
         else
             zlim_use = [-30 30];
+        end
+    elseif targetBiomech == "angle_dot" || targetBiomech == "angle_dot_norm"
+        % Shared symmetric angular-velocity axis; can be overridden by runner.
+        if targetJoint == "hip"
+            zlim_use = [-550 550];
+        elseif targetJoint == "knee"
+            zlim_use = [-700 700];
+        else
+            zlim_use = [-550 550];
         end
     else
         zlim_use = [-1 1];

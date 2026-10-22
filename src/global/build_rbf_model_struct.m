@@ -50,4 +50,25 @@ used by downstream controller-parameter derivation scripts.
         evaluation_result_total.avg_hip_moment_stance_total;
     RBF_model_full.hip_angle_swing = ...
         evaluation_result_total.avg_hip_angle_swing_total;
+
+    %% Add both original and normalized angular-velocity RBF models.
+    % New fields have the same nested evaluation structure as angle/moment.
+    for joint = ["ankle", "knee", "hip"]
+        for signal = ["angle_dot", "angle_dot_norm"]
+            for gaitState = ["stance", "swing"]
+                if signal == "angle_dot_norm"
+                    fieldName = char(joint + "_angle_dot_" + gaitState + "_norm");
+                else
+                    fieldName = char(joint + "_" + signal + "_" + gaitState);
+                end
+                evaluationField = ['avg_' fieldName '_total'];
+                if ~isfield(evaluation_result_total, evaluationField)
+                    error('build_rbf_model_struct:MissingAngularVelocity', ...
+                        'Missing angular velocity model: %s', evaluationField);
+                end
+                RBF_model_full.(fieldName) = ...
+                    evaluation_result_total.(evaluationField);
+            end
+        end
+    end
 end

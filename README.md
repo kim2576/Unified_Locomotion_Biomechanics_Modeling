@@ -4,6 +4,11 @@ This package starts **after preprocessing**. The two required inputs are already
 
 - `data/AB_avgDat_Camargo.mat`
 - `data/AB_avgDat_Molinaro.mat`
+  
+## References
+- Camargo, Jonathan, et al. "A comprehensive, open-source dataset of lower limb biomechanics in multiple conditions of stairs, ramps, and level-ground ambulation and transitions." Journal of biomechanics 119 (2021): 110320.
+- Molinaro, Dean D., Inseung Kang, and Aaron J. Young. "Estimating human joint moments unifies exoskeleton control, reducing user effort." Science robotics 9.88 (2024): eadi8852.
+- Buhmann, Martin Dietrich. "Radial basis functions." Acta numerica 9 (2000): 1-38.
 
 ## Final runners
 
@@ -52,12 +57,6 @@ src/local       Local polynomial-fit comparison
 src/evaluation  Current downstream MAE manuscript evaluation
 ```
 
-## Sanity-check result: Molinaro slope order
-
-The supplied Molinaro file has a legacy ordering inconsistency: its trajectory matrices were saved in reverse terrain-slope row order, while `slope_info` was saved in ascending order. The old global runner compensated with `end:-1:1`, but the local path did not.
-
-`load_preprocessed_biomechanics.m` now centralizes this correction. The stored `.mat` file is not modified.
-
 ## Required MATLAB toolboxes
 
 Core model construction currently uses:
@@ -66,10 +65,6 @@ Core model construction currently uses:
 - Statistics and Machine Learning Toolbox (`pdist2`; MAE/statistical comparisons also use statistics functions)
 
 The optional final MAE plotting path attempts `swtest` when available and otherwise falls back to MATLAB's paired `ttest` logic.
-
-## Intentionally excluded
-
-The upstream raw-data preprocessing, joint-work analysis, leave-slope experiments, paper-specific impedance derivation, and older test scripts are not required by these two final runners and are therefore not included in this backend-only package.
 
 ## Local-fit runner configuration
 
@@ -87,38 +82,6 @@ visualize        = true;
 Plot defaults are centralized in `src/local/build_local_plot_options.m`.
 `plot_overrides` in the runner can replace only selected display settings
 without redefining the complete plotting structure.
-
-## Step 3 modularization
-
-The local-fit pipeline now separates three data-preparation responsibilities:
-
-- `get_terrain_slope_sets.m` defines the discrete terrain subsets in one place.
-- `select_biomechanics_surface.m` selects one joint/state/quantity and returns the standard `phase x slope` matrix.
-- `prepare_local_fit_data.m` constructs the full/ascent/descent/ramp/stair subsets used by local fitting.
-
-`local_polyfit_comparison.m` therefore begins directly from an already-selected, consistently oriented biomechanics surface before entering the polynomial-fitting stage. The global RBF path still retains its legacy internal slope definitions for now and can be migrated to the shared terrain helper in a later step.
-
-
-## Step 4 modularization
-
-The repeated local polynomial-fitting calls are now isolated in
-`src/local/fit_local_biomechanics_models.m`.
-
-Each prepared terrain subset already carries its own discrete
-`slopePoints`, so the fitting helper no longer needs hard-coded terrain
-values. It fits each requested subset using those points and evaluates all
-local models over `data.full.sortedSlope`, preserving the original
-full-domain comparison behavior.
-
-`local_polyfit_comparison.m` now delegates the entire fitting stage with:
-
-```matlab
-fit = fit_local_biomechanics_models( ...
-    data, targetDirection, fitType);
-```
-
-The model evaluation, similarity summaries, and plotting logic remain in
-`local_polyfit_comparison.m` and are unchanged in this step.
 
 ## Surface-plot annotations
 
