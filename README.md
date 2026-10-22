@@ -91,7 +91,7 @@ biomechanics metadata and model fidelity directly in the figure:
 - title: joint + gait state + biomechanical quantity + model type
 - x-axis: `Terrain slope (deg)`
 - y-axis: `Gait phase (%)`
-- z-axis: joint angle `(deg)` or normalized joint moment `(Nm/kg)`
+- z-axis: joint angle `(deg)` joint angular velocity '(deg/s)' or normalized joint moment `(Nm/kg)`
 - second title line: mean ± 1 SD of the per-slope MAE used for that surface
 
 Example:
