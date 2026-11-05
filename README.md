@@ -116,7 +116,6 @@ target_biomech   = "moment";
 target_direction = "both";
 ```
 
-<<<<<<< HEAD
 This highlights where a single global polynomial loses fidelity relative to the partitioned models.
 =======
 - title: joint + gait state + biomechanical quantity + model type
@@ -124,7 +123,6 @@ This highlights where a single global polynomial loses fidelity relative to the 
 - y-axis: `Gait phase (%)`
 - z-axis: joint angle `(deg)` joint angular velocity '(deg/s)' or normalized joint moment `(Nm/kg)`
 - second title line: mean ± 1 SD of the per-slope MAE used for that surface
->>>>>>> f73212a9211732516569e8e0869d68cbb7026b38
 
 ### 3. Hip stance angular velocity
 
