@@ -116,7 +116,6 @@ target_biomech   = "moment";
 target_direction = "both";
 ```
 
-This highlights where a single global polynomial loses fidelity relative to the partitioned models.
 =======
 - title: joint + gait state + biomechanical quantity + model type
 - x-axis: `Terrain slope (deg)`
