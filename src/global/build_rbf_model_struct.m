@@ -1,14 +1,8 @@
 function RBF_model_full = build_rbf_model_struct(evaluation_result_total)
 
-%{
-Create the compact unified-RBF model structure.
+% Convert evaluation outputs to the compact RBF_model_full structure
+% used by downstream impedance-parameterization scripts.
 
-  RBF_model_full = BUILD_RBF_MODEL_STRUCT(evaluation_result_total)
-
-Converts the verbose field names returned by
-evaluate_all_biomechanics_with_RBF into the compact joint/variable names
-used by downstream controller-parameter derivation scripts.
-%}
 
     required_fields = { ...
         'avg_ankle_angle_stance_total', ...
@@ -51,8 +45,8 @@ used by downstream controller-parameter derivation scripts.
     RBF_model_full.hip_angle_swing = ...
         evaluation_result_total.avg_hip_angle_swing_total;
 
-    %% Add both original and normalized angular-velocity RBF models.
-    % New fields have the same nested evaluation structure as angle/moment.
+    %% Angular-velocity RBF models
+
     for joint = ["ankle", "knee", "hip"]
         for signal = ["angle_dot", "angle_dot_norm"]
             for gaitState = ["stance", "swing"]

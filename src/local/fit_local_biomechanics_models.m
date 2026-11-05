@@ -1,27 +1,8 @@
 function fit = fit_local_biomechanics_models(data, targetDirection, fitType)
 
-%{
-Fit global and local polynomial surfaces.
+% Fit the global and requested local polynomial models. Local models are
+% evaluated over the full continuous slope domain for comparison.
 
-Inputs:
-  data            structure from prepare_local_fit_data()
-  targetDirection "ascending", "descending", or "both"
-  fitType         MATLAB surface fit type, e.g. "poly44"
-
-Output:
-  fit.<subset>.model   fitted MATLAB model object
-  fit.<subset>.fitted  model evaluated over the full continuous
-                       terrain-slope domain
-
-Notes:
-  - Each model is fitted only to the discrete terrain points stored in
-    data.<subset>.slopePoints.
-  - Every fitted surface is evaluated over data.full.sortedSlope. This
-    preserves the original comparison workflow, where local models are
-    propagated across the full terrain domain before evaluation.
-  - manual_offset is intentionally fixed at zero to preserve the current
-    package behavior.
-%}
 
     if nargin < 3 || isempty(fitType)
         fitType = "poly44";
@@ -44,7 +25,7 @@ Notes:
     evaluationSlope = data.full.sortedSlope;
     fit = struct();
 
-    %% Full-domain model is always required - the baseline for both ascending and descending comparisons.
+    %% Full-domain reference model
     fit.full = local_fit_subset(data.full, evaluationSlope, fitType);
 
     if targetDirection == "ascending" || targetDirection == "both"

@@ -1,18 +1,8 @@
 function data = prepare_local_fit_data(targetSurface, slopes, targetDirection)
 
-%{
-Arrange one biomechanics surface by terrain subset.
+% Arrange one biomechanics surface into the terrain subsets used by the
+% local polynomial comparisons.
 
-Inputs:
-  targetSurface   phase x slope matrix on slopes.full
-  slopes          structure from get_terrain_slope_sets()
-  targetDirection "ascending", "descending", or "both"
-
-Output:
-  data.(subset).surf        selected experimental surface
-  data.(subset).sortedSlope continuous evaluation slope vector
-  data.(subset).slopePoints discrete terrain points defining that subset
-%}
 
     targetDirection = lower(string(targetDirection));
 

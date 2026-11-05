@@ -4,10 +4,8 @@ function stat_results_total = final_eval_all_MAEs_with_RBF( ...
     savedir, cached_evaluation_results ...
     )
 
-%{
-Use results from evaluate_selected_biomechanics.
+% Run the manuscript MAE comparisons from the unified-model results.
 
-%}
 
 if nargin < 4 || isempty(cached_evaluation_results)
     cached_evaluation_results = struct();

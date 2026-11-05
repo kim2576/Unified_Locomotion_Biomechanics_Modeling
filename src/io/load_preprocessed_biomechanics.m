@@ -1,21 +1,8 @@
 function [camargo_data_struct, molinaro_data_struct] = load_preprocessed_biomechanics(data_dir)
 
-%{
-Load the two preprocessed biomechanics files.
+% Load the preprocessed Camargo and Molinaro biomechanics structures.
+% Molinaro trajectory rows are reversed here to match ascending slope_info.
 
-This package begins AFTER preprocessing. The required files are:
-  AB_avgDat_Camargo.mat
-  AB_avgDat_Molinaro.mat
-
-Both files must contain a variable named data_struct.
-
-IMPORTANT LEGACY DETAIL
-The supplied Molinaro .mat file stores the 17x101 trajectory matrices in
-descending row order even though data_struct.slope_info is ascending.
-The original run_global_rbf_plot.m compensated for this using end:-1:1.
-The correction is centralized here so all downstream analyses use one
-consistent ascending slope convention.
-%}
     if nargin < 1 || isempty(data_dir)
         error('A data directory must be provided.');
     end
@@ -49,7 +36,7 @@ consistent ascending slope convention.
     assert(isequal(molinaro_data_struct.slope_info(:)', expected_slopes), ...
         'Unexpected Molinaro slope_info ordering.');
 
-    %% Centralized equivalent of the legacy end:-1:1 correction.
+    %% Align Molinaro rows with ascending slope_info
     trajectory_fields = { ...
         'ankle_moment_stance', ...
         'ankle_angle_stance', ...

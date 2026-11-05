@@ -1,26 +1,9 @@
 function plotOption = configure_biomechanics_surface_plot( ...
     plotOption, targetJoint, targetState, targetBiomech, modelLabel)
 
-%{
-Add descriptive surface-plot metadata.
+% Add joint/state labels and units to surface-plot options.
+% Used by both local polynomial and global RBF plots.
 
-This helper keeps biomechanics naming and units consistent across the
-local polynomial-fit and global RBF visualization paths.
-
-Inputs:
-  plotOption    : existing visualization option structure
-  targetJoint   : "hip", "knee", or "ankle"
-  targetState   : "stance" or "swing"
-  targetBiomech : "angle" or "moment"
-  modelLabel    : descriptive model name shown in the title
-
-Output fields added to plotOption:
-  .title
-  .xlabel
-  .ylabel
-  .zlabel
-  .mae_unit
-%}
 
     targetJoint   = lower(string(targetJoint));
     targetState   = lower(string(targetState));

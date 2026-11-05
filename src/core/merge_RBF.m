@@ -3,13 +3,11 @@ function z_RBF_interp = merge_RBF( ...
     r_coeff, moment_positive_zero ...
     )
 
-%{
+% Merge the ascent and descent polynomial surfaces with Gaussian RBF
+% interpolation over the unified -35 to +35 deg slope domain.
 
-Slope-unified biomechanics (curve fitted) -> RBF interpolation 
 
-%}
-
-% Fixed settings for RBF merging
+% Unified slope and phase grids
 slope_asc = 0:1:35;
 slope_desc = -35:1:0;
 slope_to_interp = -35:1:35;
@@ -32,17 +30,17 @@ X_interp = XGrid_interp(:)/35;
 Y_interp = YGrid_interp(:)/100;
 XY_interp = [X_interp, Y_interp];
 
-% Gaussian RBF
+% Gaussian kernel
 p = 2;
 rbf = @(r) exp(-r.^p);
 
-% Compute pairwise distances
+% Kernel matrix on source coordinates
 D_original = pdist2(XY_original, XY_original);
 
-% regularization value examples: [1e-8, 1e-6, 1e-4, 1e-3, 1e-2, 1e-1, 1];
+% Diagonal regularization
 Phi_original = rbf(D_original) + eye(size(D_original)) * r_coeff; % Regularization
 
-% Solve for interpolation coefficients
+% Interpolation coefficients
 lambda = Phi_original \ Z_original;
 
 D_interp = pdist2(XY_interp, XY_original);
@@ -51,11 +49,10 @@ Phi_interp = rbf(D_interp);
 z_RBF_interp = Phi_interp * lambda;
 z_RBF_interp = reshape(z_RBF_interp, size(XGrid_interp));
 
-% If target is joint moment, begin with non-negative value at 0% stance phase
+% Optional moment adjustment at stance onset
 z_RBF_interp_moment = z_RBF_interp;
 
 if moment_positive_zero
-    % disp('Optimizing joint moment')
     for s = 1:size(z_RBF_interp, 2)
         target_slope_moment = z_RBF_interp(:, s);
 

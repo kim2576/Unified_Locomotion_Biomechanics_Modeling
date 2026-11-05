@@ -72,13 +72,12 @@ for i = 1:length(biomechanics_list)
     target_biomechanics_name = biomechanics_list{i};
 
     if contains(target_biomechanics_name, 'mean') || contains(target_biomechanics_name, 'std')
-        %% Skip mean/std informations. Not for plotting or RBF blending.
+        %% Skip summary-only fields
         continue
     end
 
     target_biomechanics = target_biomechanics_total.(target_biomechanics_name);
-    % Existing angle/moment display settings remain unchanged. Angular
-    % velocities use data-dependent symmetric limits for readability.
+    % Use data-dependent symmetric limits for angular velocity.
     if isfield(plot_options, target_biomechanics_name)
         plot_option_full = plot_options.(target_biomechanics_name);
     else
@@ -101,7 +100,7 @@ for i = 1:length(biomechanics_list)
         plot_option_full, target_joint, target_state, target_biomech, ...
         "Global RBF model");
     
-    %% For later use, leave this part (test with different r values)
+    %% RBF regularization
     if contains(target_biomechanics_name, 'ankle')
         r_coeff = 1e-8;
     else
@@ -124,7 +123,7 @@ end
 function [targetJoint, targetState, targetBiomech] = ...
     local_parse_biomechanics_name(targetName)
 
-%% Parse names such as avg_hip_angle_stance_total.
+%% Parse biomechanics field name
 
     tokens = split(string(targetName), "_");
 
@@ -133,8 +132,7 @@ function [targetJoint, targetState, targetBiomech] = ...
     end
 
     targetJoint = tokens(2);
-    % Norm velocity fields are stored as avg_JOINT_angle_dot_STATE_norm_total.
-    % The other biomechanics remain avg_JOINT_BIOMECH_STATE_total.
+    % Normalized velocity fields place "norm" before the final suffix.
     if tokens(end-1) == "norm"
         targetState = tokens(end-2);
         targetBiomech = strjoin(tokens(3:end-3), '_') + "_norm";

@@ -2,22 +2,9 @@ function surface = select_biomechanics_surface( ...
     camargo_data_struct, molinaro_data_struct, ...
     targetJoint, targetState, targetBiomech)
 
-%{
-Select one preprocessed biomechanics surface.
+% Select one joint/state/biomechanics surface and return phase-by-slope
+% data on the common 101-sample gait-phase grid.
 
-The returned matrix follows the modeling convention used throughout the
-package:
-  rows    = normalized gait phase
-  columns = terrain slope
-
-Inputs are selected using fields of the form
-  (joint)_(biomech)_(state)
-For Example - 
-  knee_angle_stance
-  ankle_moment_stance
-
-The supplied local-fit workflow supports hip, knee, and ankle data.
-%}
     targetJoint   = lower(string(targetJoint));
     targetState   = lower(string(targetState));
     targetBiomech = lower(string(targetBiomech));
@@ -57,7 +44,7 @@ The supplied local-fit workflow supports hip, knee, and ankle data.
             fieldName, nSlopes, size(rawData, 1), size(rawData, 2));
     end
 
-    %% Standard modeling orientation: phase x slope (101 samples).
+    %% Convert to phase-by-slope orientation
     % angle_dot_norm arrives as 100 interval-based values and is aligned
     % to the model grid at 0..100% before polynomial/RBF fitting.
     surface = align_biomechanics_phase_grid(rawData, fieldName);

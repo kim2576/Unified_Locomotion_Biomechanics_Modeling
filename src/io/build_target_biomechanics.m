@@ -1,17 +1,13 @@
 function target_biomechanics_total = build_target_biomechanics( ...
     camargo_data_struct, molinaro_data_struct)
 
-%{
-Convert preprocessed structures to phase x slope.
+% Convert the preprocessed structures to phase-by-slope matrices.
+% The common grid contains 101 phase samples and 17 terrain conditions.
 
-Output matrices used by the fitting code have:
-rows    = normalized phase (101 samples; angle_dot_norm is aligned from 100 midpoints)
-columns = terrain slopes (17 conditions, ascending -35 to +35 deg)
-%}
 
     target_biomechanics_total = struct;
 
-    %% Ankle: Molinaro data have offset by load_preprocessed_biomechanics().
+    %% Ankle
     target_biomechanics_total.avg_ankle_moment_stance_total = ...
         molinaro_data_struct.ankle_moment_stance';
     target_biomechanics_total.avg_ankle_angle_stance_total = ...
@@ -19,7 +15,7 @@ columns = terrain slopes (17 conditions, ascending -35 to +35 deg)
     target_biomechanics_total.avg_ankle_angle_swing_total = ...
         molinaro_data_struct.ankle_angle_swing';
 
-    %% Both measured and phase-normalized angular velocity (stance/swing).
+    %% Angular velocity
     target_biomechanics_total.avg_ankle_angle_dot_stance_total = ...
         align_biomechanics_phase_grid(molinaro_data_struct.ankle_angle_dot_stance, 'ankle_angle_dot_stance');
     target_biomechanics_total.avg_ankle_angle_dot_swing_total = ...
@@ -51,7 +47,7 @@ columns = terrain slopes (17 conditions, ascending -35 to +35 deg)
     target_biomechanics_total.avg_knee_angle_swing_total = ...
         camargo_data_struct.knee_angle_swing';
 
-    %% Both measured and phase-normalized angular velocity (stance/swing).
+    %% Angular velocity
     target_biomechanics_total.avg_knee_angle_dot_stance_total = ...
         align_biomechanics_phase_grid(camargo_data_struct.knee_angle_dot_stance, 'knee_angle_dot_stance');
     target_biomechanics_total.avg_knee_angle_dot_swing_total = ...
@@ -83,7 +79,7 @@ columns = terrain slopes (17 conditions, ascending -35 to +35 deg)
     target_biomechanics_total.avg_hip_angle_swing_total = ...
         camargo_data_struct.hip_angle_swing';
 
-    %% Both measured and phase-normalized angular velocity (stance/swing).
+    %% Angular velocity
     target_biomechanics_total.avg_hip_angle_dot_stance_total = ...
         align_biomechanics_phase_grid(camargo_data_struct.hip_angle_dot_stance, 'hip_angle_dot_stance');
     target_biomechanics_total.avg_hip_angle_dot_swing_total = ...

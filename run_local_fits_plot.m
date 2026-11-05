@@ -27,8 +27,7 @@ data_dir = fullfile(project_root, 'data');
     load_preprocessed_biomechanics(data_dir);
 
 %% Optional visualization overrides
-% Leave empty to use package defaults. Any supplied fields override only the
-% corresponding defaults; all unspecified fields are retained.
+% Leave empty to use the default plot settings.
 plot_overrides = struct();
 % Example:
 % plot_overrides.global = struct('view', [25 20], 'zlim', [-20 100]);

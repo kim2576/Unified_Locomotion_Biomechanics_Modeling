@@ -3,26 +3,9 @@ function results = local_polyfit_comparison( ...
     targetJoint, targetState, targetBiomech, ...
     targetDirection, fitType, visualize, plotOverrides)
 
-%{
-Compare global polynomial fitting vs. local polynomial fitting
-for unified locomotion biomechanics across slope and gait phase.
+% Compare global and partitioned polynomial fits for one biomechanics
+% surface and return fitted models, MAE evaluations, and summary tables.
 
-Inputs:
-  camargo_data_struct   : Camargo AB reference structure
-  molinaro_data_struct  : Molinaro AB reference structure
-  targetJoint           : "hip", "knee", or "ankle"
-  targetState           : "stance" or "swing"
-  targetBiomech         : "moment" or "angle"
-  targetDirection       : "ascending", "descending", or "both"
-  fitType               : e.g., "poly44"
-  visualize             : true or false
-  plotOverrides         : optional partial/full visualization settings;
-                           missing values are filled with package defaults
-
-Output:
-  results               : structure containing arranged data, fitted models,
-                          evaluations, and summary tables
-%}
     if nargin < 7 || isempty(fitType)
         fitType = "poly44";
     end
@@ -40,7 +23,7 @@ Output:
     targetBiomech   = lower(string(targetBiomech));
     targetDirection = lower(string(targetDirection));
 
-    %% Terrain definitions and target-data arrangement
+    %% Select target data
     slopes = get_terrain_slope_sets();
 
     targetSurface = select_biomechanics_surface( ...
@@ -50,11 +33,11 @@ Output:
     data = prepare_local_fit_data( ...
         targetSurface, slopes, targetDirection);
 
-    %% Polynomial fitting
+    %% Fit polynomial models
     fit = fit_local_biomechanics_models( ...
         data, targetDirection, fitType);
 
-    %% Set evaluation options
+    %% Evaluation options
     plotOptions = build_local_plot_options( ...
         targetJoint, targetBiomech, visualize, plotOverrides);
 
@@ -62,14 +45,14 @@ Output:
     plot_option_ascent = plotOptions.ascent;
     plot_option_descent = plotOptions.descent;
 
-    %% Evaluate models    
+    %% Evaluate models
     eval_global = struct();
     eval_ascent = struct();
     eval_descent = struct();
 
     legendAdded = false;
 
-    %% Global full-range visualization/evaluation
+    %% Global model
     if targetDirection == "both"
     
         plot_option = configure_biomechanics_surface_plot( ...
@@ -99,7 +82,7 @@ Output:
             data.ascent_full.surf, slopes.ascent.full, ...
             fit.full.fitted, data.full.sortedSlope, plot_option);        
 
-        % Add legend only once
+        % Add the legend once.
         if visualize && ~legendAdded
             legend({'Model', 'AB ref'}, ...
                 'Location', 'best', ...
@@ -185,12 +168,12 @@ Output:
 
     end
 
-    %% Create summary tables
+    %% Summary tables
     summary_global = local_make_summary(eval_global);
     summary_ascent = local_make_summary(eval_ascent);
     summary_descent = local_make_summary(eval_descent);
 
-    %% Set output structure
+    %% Output structure
     results = struct();
 
     results.targetJoint = targetJoint;
@@ -224,7 +207,7 @@ Output:
 
 end
 
-%% Create summary table
+%% Summary table
 function summaryTable = local_make_summary(evalStruct)
 
     names = fieldnames(evalStruct);

@@ -8,7 +8,7 @@ function evaluation_result = evaluate_selected_biomechanics_with_RBF( ...
 
 normalized_phase = linspace(0,100,101);
 
-%% Define slope ranges - 4 different presets for each ramp/stairs + LW
+%% Terrain subsets
 slope_full = [-35, -30, -24, -20, ...
     -11, -9, -7, ...
     -5, 0, 5, ...
@@ -38,7 +38,7 @@ slope_descent_ramp = [-11, -9, -7, -5, 0];
 
 slope_descent_stair = [-35, -30, -24, -20, 0];
 
-%% Verify the leave_slopes_out function works
+%% Select terrain subsets
 % 1. Full slope
 [target_biomechanics_surf_full, sorted_slope_continuous_full] = leave_slopes_out( ...
     target_biomechanics, slope_full, slope_full);
@@ -75,7 +75,7 @@ slope_descent_stair = [-35, -30, -24, -20, 0];
 [target_biomechanics_surf_descent_stair, sorted_slope_continuous_descent_stair] = leave_slopes_out( ...
     target_biomechanics, slope_full, slope_descent_stair);
 
-%% Verify the piecewise_2dpoly functions
+%% Polynomial fits
 % Full
 [fitModel_full, fitted_biomechanics_full] = piecewise_2dpoly( ...
     target_biomechanics_surf_full, slope_full, sorted_slope_continuous_full, ...
@@ -115,16 +115,15 @@ slope_descent_stair = [-35, -30, -24, -20, 0];
     target_biomechanics_surf_descent_stair, slope_descent_stair, sorted_slope_continuous_full, ...
     "poly44", 0);
 
-% RBF-blending
-% r_coeff = 1e-8;
+% RBF unification
 
 z_RBF_interp = merge_RBF( ...
     fitted_biomechanics_ascent_full(:, 36:end), fitted_biomechanics_descent_full(:, 1:36), ...
     r_coeff, moment_positive_zero ...
     );
 
-%% Evaluate each piecewise fits
-% Full RBF evaluation
+%% Evaluate fitted surfaces
+% Unified RBF
 [RBF_full, similarity_00] = evaluate_model( ...
     target_biomechanics_surf_full, slope_full, ...
     z_RBF_interp, sorted_slope_continuous_full, plot_option_full);

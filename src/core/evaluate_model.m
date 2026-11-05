@@ -2,25 +2,15 @@ function [model_matched, similarity] = evaluate_model( ...
     ref_AB_surf, ref_AB_slopes, ...
     fitted_surf, fitted_surf_slopes, plot_option)
 
-%{
-Evaluate a continuous surface at discrete reference slopes.
+% Evaluate a fitted surface at the discrete AB reference slopes.
+% Rows are gait phase and columns are terrain slope. `similarity` stores
+% the per-slope MAE values used by the comparison plots.
 
-Inputs use the package convention:
-  rows    = normalized gait phase
-  columns = terrain slope
-
-Output:
-  model_matched : fitted trajectories at the reference slopes
-  similarity    : legacy field name; contains per-slope MAE values
-
-When visualization is enabled, the surface title reports the mean +/-
-1 SD of the per-slope MAE values shown by this evaluation.
-%}
     similarity = [];
 
     slopes_in_ref = length(ref_AB_slopes);
 
-    %% Default phase definition
+    %% Phase grid
     normalized_phase = linspace(0,100,101);
     model_matched = [];
 
@@ -44,8 +34,8 @@ When visualization is enabled, the surface title reports the mean +/-
                 'omitnan');
 
             model_matched = [model_matched, ...
-                fitted_surf(:, slope_id_in_fitted_surf)]; %#ok<AGROW>
-            similarity = [similarity, MAE]; %#ok<AGROW>
+                fitted_surf(:, slope_id_in_fitted_surf)];
+            similarity = [similarity, MAE];
         end
     end
 

@@ -3,14 +3,13 @@ function results_all = final_eval_combined_MAEs_with_RBF( ...
     moment_positive_zero, ...
     savedir, cached_evaluation_results)
 
-%% Reuse evaluated RBF results from the global runner when available.
-% This avoids rerunning the expensive 7272x7272 Gaussian RBF kernel solve
-% for each of the angle/moment/velocity MAE figures.
+%% Reuse cached RBF evaluations when available
+% Avoid repeated RBF solves for each MAE figure.
 if nargin < 4 || isempty(cached_evaluation_results)
     cached_evaluation_results = struct();
 end
 
-%% Plot options for RBF evaluation
+%% RBF evaluation options
 plot_option_full = struct('visualize', false, ...
     'xlim', [-40 40], 'ylim', [0 120], 'zlim', [-75 75], ...
     'view', [20, 30], 'clim', [-75 75]);
@@ -23,7 +22,7 @@ plot_option_descent = struct('visualize', false, ...
     'xlim', [-40 0], 'ylim', [0 120], 'zlim', [-75 75], ...
     'view', [20, 30], 'clim', [-75 75]);
 
-%% Evaluate knee/ankle only
+%% Signals included in the comparison
 varList = {
     'avg_knee_angle_stance_total'
     'avg_knee_angle_swing_total'
@@ -119,9 +118,8 @@ exportgraphics(gcf, fullfile(savedir, 'combined_global_kinetics.png'), ...
     'Resolution', 300);
 
 
-%% Angular velocity: preserve separate original and _norm comparisons.
-% Each figure includes hip, knee and ankle for stance and swing; the
-% ascending/descending tests are inherited from the original MAE logic.
+%% Angular-velocity comparisons
+% Plot original and phase-normalized angular velocity separately.
 for velocityType = ["angle_dot", "angle_dot_norm"]
     velocityNames = cell(0, 2);
     for joint = ["knee", "ankle", "hip"]
@@ -134,7 +132,7 @@ for velocityType = ["angle_dot", "angle_dot_norm"]
             jointLabel = char(joint);
             jointLabel(1) = upper(jointLabel(1));
             displayName = [jointLabel ' ' char(gaitState)];
-            velocityNames(end+1, :) = {fieldName, displayName}; %#ok<AGROW>
+            velocityNames(end+1, :) = {fieldName, displayName};
         end
     end
 
@@ -195,7 +193,7 @@ meanMat = [];
 stdMat = [];
 pMat = [];
 
-%% Universal model color map
+%% Model labels and colors
 % 1 = RBF
 % 2 = Full modes
 % 3 = Full local
@@ -208,23 +206,6 @@ modelNames = { ...
     'Leave-ramp', ...
     'Leave-stair'};
 
-% modelNames = { ...
-%     'RBF', ...
-%     'Full modes', ...
-%     'Full local', ...
-%     'Leave-ramp', ...
-%     % 'Leave-stair'
-%     };
-
-% 
-% cmap = [
-%     0.20 0.45 0.85;    % RBF
-%     0.90 0.55 0.15;    % Full modes
-%     0.20 0.65 0.35;    % Full local
-%     0.75 0.25 0.25;    % Leave-ramp
-%     0.55 0.35 0.75;    % Leave-stair
-% ];
-
 cmap = [
     [167 232 255]/255;        % RBF (#00B0F0)
 
@@ -235,7 +216,7 @@ cmap = [
     0.55 0.35 0.75;         % Leave-stair
 ];
 
-%% Select model order
+%% Select compared models
 switch comparisonType
     case 'local'
         % After S(3)=[]:
@@ -257,7 +238,7 @@ switch comparisonType
         error('comparisonType must be either local or global.');
 end
 
-%% Gather means, stds, and p-values
+%% Gather summary statistics
 for i = 1:size(nameLabelPairs, 1)
     fieldName = nameLabelPairs{i,1};
     baseLabel = nameLabelPairs{i,2};
@@ -297,7 +278,7 @@ for i = 1:size(nameLabelPairs, 1)
         stdMat  = [stdMat; groupStd];
         groupLabels{end+1} = [baseLabel ' ' dirLabel];
 
-        %% Statistics only for global model comparison
+        %% Paired tests for the global comparison
         if strcmp(comparisonType, 'global')
             % Bar 1 = RBF
             % Bar 2 = Full modes
@@ -363,7 +344,7 @@ for k = 1:numel(bh)
     end
 end
 
-%% Significance stars only for global comparison
+%% Significance markers for global comparison
 if strcmp(comparisonType, 'global')
     for g = 1:size(meanPlot,1)
 
@@ -388,7 +369,7 @@ set(gca, ...
 xtickangle(35);
 xlim([0.5, numel(groupLabels) + 0.5]);
 
-%% Universal 5-color legend
+%% Legend
 h = gobjects(1, numel(modelNames));
 
 for k = 1:numel(modelNames)
@@ -477,28 +458,15 @@ x2 = bh(barB).XEndPoints(groupIdx);
 y1 = bh(barA).YData(groupIdx);
 y2 = bh(barB).YData(groupIdx);
 
-% baseY = max([y1, y2]);
-% 
-% lineY = baseY + (0.1 + 0.07*(level-1)) * yrange;
-% textY = lineY + 0.2 * yrange;
-% 
-% % Keep annotation inside axis
-% if textY > ymax
-%     % lineY = ymax - (0.12 - 0.04*(level-1)) * yrange;
-%     lineY = ymax - (0.14 - 0.045*(level-1)) * yrange;
-%     textY = lineY + 0.2 * yrange;
-% end
-
 baseY = max([y1, y2]);
 
 starOffset    = 0.01 * yrange;
-% starOffset    = 0;
 bracketOffset = 0.4 + 0.01*(level-1);
 
 lineY = baseY + bracketOffset * yrange;
 textY = lineY + starOffset;
 
-% If too high, shift BOTH down together
+% Keep the bracket inside the axis.
 shift = max(0, textY - (ymax - 0.02*yrange));
 
 lineY = lineY - shift;

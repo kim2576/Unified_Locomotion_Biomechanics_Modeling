@@ -18,10 +18,11 @@ clc;
 
 %% User options
 visualize_rbf = true;
+visualize_rbf = false;
 run_final_evaluation = true;
 moment_positive_zero = false;
 save_rbf_model = false;
-% save_rbf_model = true;
+save_rbf_model = true;
 
 %% Project paths
 project_root = fileparts(mfilename('fullpath'));
@@ -46,7 +47,7 @@ target_biomechanics_total = build_target_biomechanics( ...
 evaluation_result_total = evaluate_all_biomechanics_with_RBF( ...
     target_biomechanics_total, visualize_rbf);
 
-%% Create compact model structure for downstream controller derivation
+%% Package unified RBF models
 RBF_model_full = build_rbf_model_struct(evaluation_result_total);
 
 if save_rbf_model
@@ -54,9 +55,7 @@ if save_rbf_model
     save(fullfile(output_dir, 'AB_refs.mat'), 'target_biomechanics_total');
 end
 
-%% Optional final MAE comparison
-% This is downstream model evaluation and is not required to construct the
-% unified RBF biomechanics surfaces.
+%% Optional manuscript MAE comparison
 if run_final_evaluation
     stat_results_total = final_eval_all_MAEs_with_RBF( ...
         target_biomechanics_total, ...

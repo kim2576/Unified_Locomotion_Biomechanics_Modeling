@@ -1,23 +1,8 @@
 function slopes = get_terrain_slope_sets()
 
-%{
-Terrain subsets used by the biomechanics models.
+% Terrain-slope subsets used for the local polynomial comparisons.
+% All values are in degrees.
 
-All values are terrain angles in degrees. The full set matches the
-preprocessed AB datasets. The local subsets preserve the original model
-definitions used for ramp/stair and cross-direction comparisons.
-
-Output fields:
-  slopes.full
-  slopes.ascent.full
-  slopes.ascent.full_with_RD
-  slopes.ascent.ramp
-  slopes.ascent.stair
-  slopes.descent.full
-  slopes.descent.full_with_RA
-  slopes.descent.ramp
-  slopes.descent.stair
-%}
 
     slopes = struct();
 
